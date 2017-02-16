@@ -143,7 +143,6 @@ def nbody(loops, reference, iterations):
 
     for _ in range(loops):
 
-        report_energy()
         advance(dt=0.01, iterations=iterations)
         print(report_energy())
 
