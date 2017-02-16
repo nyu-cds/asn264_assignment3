@@ -61,8 +61,8 @@ def advance(dt, iterations):
 
     for _ in range(iterations):
         for idx, body1 in enumerate(loc_BODIES_KEYS):
+            ([x1, y1, z1], v1, m1) = loc_BODIES[body1]
             for body2 in loc_BODIES_KEYS[idx+1:]:
-                ([x1, y1, z1], v1, m1) = loc_BODIES[body1]
                 ([x2, y2, z2], v2, m2) = loc_BODIES[body2]
                 
                 (dx, dy, dz) = (x1-x2, y1-y2, z1-z2)
@@ -94,8 +94,8 @@ def report_energy(e=0.0):
 
     seenit = set()
     for idx, body1 in enumerate(loc_BODIES_KEYS):
+        ((x1, y1, z1), v1, m1) = loc_BODIES[body1]
         for body2 in loc_BODIES_KEYS[idx+1:]:
-            ((x1, y1, z1), v1, m1) = loc_BODIES[body1]
             ((x2, y2, z2), v2, m2) = loc_BODIES[body2]
             
             (dx, dy, dz) = (x1-x2, y1-y2, z1-z2)
