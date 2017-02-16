@@ -50,20 +50,18 @@ BODIES = {
 BODIES_KEYS = ['sun', 'jupiter', 'saturn', 'uranus', 'neptune']
 
 
-def advance(dt, iterations):
+def advance(BODIES, BODIES_KEYS, dt, iterations):
     '''
         advance the system one timestep
 
         Initially: modified extra function calls here. Later: did not call, and put directly into nbody fn
     '''
-    loc_BODIES = BODIES
-    loc_BODIES_KEYS = BODIES_KEYS
 
     for _ in range(iterations):
-        for idx, body1 in enumerate(loc_BODIES_KEYS):
-            ([x1, y1, z1], v1, m1) = loc_BODIES[body1]
-            for body2 in loc_BODIES_KEYS[idx+1:]:
-                ([x2, y2, z2], v2, m2) = loc_BODIES[body2]
+        for idx, body1 in enumerate(BODIES_KEYS):
+            ([x1, y1, z1], v1, m1) = BODIES[body1]
+            for body2 in BODIES_KEYS[idx+1:]:
+                ([x2, y2, z2], v2, m2) = BODIES[body2]
                 
                 (dx, dy, dz) = (x1-x2, y1-y2, z1-z2)
                 
@@ -78,47 +76,43 @@ def advance(dt, iterations):
                 v2[2] += dz * m1_val
 
             
-        for body in loc_BODIES_KEYS:
-            (r, [vx, vy, vz], m) = loc_BODIES[body]
+        for body in BODIES_KEYS:
+            (r, [vx, vy, vz], m) = BODIES[body]
             r[0] += dt * vx
             r[1] += dt * vy
             r[2] += dt * vz
 
     
-def report_energy(e=0.0):
+def report_energy(BODIES, BODIES_KEYS, e=0.0):
     '''
         compute the energy and return it so that it can be printed
     '''
-    loc_BODIES = BODIES
-    loc_BODIES_KEYS = BODIES_KEYS
 
     seenit = set()
-    for idx, body1 in enumerate(loc_BODIES_KEYS):
-        ((x1, y1, z1), v1, m1) = loc_BODIES[body1]
-        for body2 in loc_BODIES_KEYS[idx+1:]:
-            ((x2, y2, z2), v2, m2) = loc_BODIES[body2]
+    for idx, body1 in enumerate(BODIES_KEYS):
+        ((x1, y1, z1), v1, m1) = BODIES[body1]
+        for body2 in BODIES_KEYS[idx+1:]:
+            ((x2, y2, z2), v2, m2) = BODIES[body2]
             
             (dx, dy, dz) = (x1-x2, y1-y2, z1-z2)
 
             e -= (m1 * m2) / ((dx * dx + dy * dy + dz * dz) ** 0.5)
 
 
-    for body in loc_BODIES_KEYS:
-        (r, [vx, vy, vz], m) = loc_BODIES[body]
+    for body in BODIES_KEYS:
+        (r, [vx, vy, vz], m) = BODIES[body]
         e += m * (vx * vx + vy * vy + vz * vz) / 2.
         
     return e
 
-def offset_momentum(ref, px=0.0, py=0.0, pz=0.0):
+def offset_momentum(BODIES, BODIES_KEYS, ref, px=0.0, py=0.0, pz=0.0):
     '''
         ref is the body in the center of the system
         offset values from this reference
     '''
-    loc_BODIES = BODIES
-    loc_BODIES_KEYS = BODIES_KEYS
 
-    for body in loc_BODIES_KEYS:
-        (r, [vx, vy, vz], m) = loc_BODIES[body]
+    for body in BODIES_KEYS:
+        (r, [vx, vy, vz], m) = BODIES[body]
         px -= vx * m
         py -= vy * m
         pz -= vz * m
@@ -136,15 +130,13 @@ def nbody(loops, reference, iterations):
         reference - body at center of system
         iterations - number of timesteps to advance
     '''
-    # Set up global state
-    loc_BODIES = BODIES
 
-    offset_momentum(loc_BODIES[reference])
+    offset_momentum(BODIES, BODIES_KEYS, BODIES[reference])
 
     for _ in range(loops):
 
-        advance(dt=0.01, iterations=iterations)
-        print(report_energy())
+        advance(BODIES, BODIES_KEYS, dt=0.01, iterations=iterations)
+        print(report_energy(BODIES, BODIES_KEYS))
 
 if __name__ == '__main__':
     
