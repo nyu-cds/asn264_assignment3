@@ -144,7 +144,7 @@ def nbody(loops, reference, iterations):
     for _ in range(loops):
 
         report_energy()
-        advance(0.01, iterations)
+        advance(dt=0.01, iterations=iterations)
         print(report_energy())
 
 if __name__ == '__main__':
