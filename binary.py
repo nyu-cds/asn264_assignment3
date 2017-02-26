@@ -10,7 +10,6 @@ one per line.
 '''
 
 import itertools
-import sys
 
 def zbits(n,k):
 	
