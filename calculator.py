@@ -2,7 +2,7 @@
 Aditi Nair - Assignment 6
 March 5 2017
 
-By replacing the original functions with numpy functions, I able to achieve the following speed-ups.
+By replacing the original functions with numpy functions, I was able to achieve the following speed-ups.
 (Speed-up is calculated as original time/new time.)
 
 ADD: 474.75 
