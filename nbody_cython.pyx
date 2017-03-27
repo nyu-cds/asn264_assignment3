@@ -10,10 +10,10 @@ For this assignment, I did the following:
 
 I did not use numpy, so I did not do any ndarray declarations or efficient indexing.
 
-Runtime: 8.76 sec
+Runtime: 8.57 sec
 Runtime before cython: 38.42 sec
 
-RELATIVE SPEED-UP: ~4.4
+RELATIVE SPEED-UP: ~4.48
 
 '''
 
@@ -64,7 +64,7 @@ cpdef void advance(dict BODIES, list BODIES_KEYS, float dt, int iterations):
     '''
 
     cdef int idx
-    cdef str body1
+    cdef str body1, body2, body
     cdef float x1, y1, z1, m1, x2, y2, z2, m2, dx, dy, dz, val, m1_val, m2_val, vx, vy, vz, m
     cdef list v1, v2, r
 
@@ -102,7 +102,7 @@ cpdef float report_energy(dict BODIES, list BODIES_KEYS, float e=0.0):
         compute the energy and return it so that it can be printed
     '''
 
-    cdef int idx1
+    cdef int idx
     cdef str body1, body2, body
     cdef float x1, y1, z1, x2, y2, z2, m1, m2, dx, dy, dz, vx, vy, vz, m
     cdef list v1, v2, r
@@ -132,17 +132,15 @@ cpdef void offset_momentum(dict BODIES, list BODIES_KEYS, tuple ref, float px=0.
 
 
     cdef float m, vx, vy, vz
-    cdef list r
-    cdef str b
+    cdef list r, v
+    cdef str body
+
     for body in BODIES_KEYS:
-        b = body
-        (r, [vx, vy, vz], m) = BODIES[b]
+        (r, [vx, vy, vz], m) = BODIES[body]
         px -= vx * m
         py -= vy * m
         pz -= vz * m
     
-    cdef list v
-
     (r, v, m) = ref
     v[0] = px / m
     v[1] = py / m
@@ -159,7 +157,8 @@ cpdef void nbody(int loops, str reference, int iterations):
 
     offset_momentum(BODIES, BODIES_KEYS, BODIES[reference])
 
-    for _ in range(loops):
+    cdef int i
+    for i in range(loops):
 
         advance(BODIES, BODIES_KEYS, dt=0.01, iterations=iterations)
         print(report_energy(BODIES, BODIES_KEYS))
