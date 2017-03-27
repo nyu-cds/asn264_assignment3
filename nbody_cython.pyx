@@ -10,10 +10,10 @@ For this assignment, I did the following:
 
 I did not use numpy, so I did not do any ndarray declarations or efficient indexing.
 
-Runtime: 8.57 sec
+Runtime: 8.03 sec
 Runtime before cython: 38.42 sec
 
-RELATIVE SPEED-UP: ~4.48
+RELATIVE SPEED-UP: ~4.78
 
 '''
 
