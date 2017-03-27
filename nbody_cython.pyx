@@ -8,7 +8,7 @@ For this assignment, I did the following:
 - Use C types in function parameter declarations
 - Modified functions to cpdef - so they can be used in imported notebooks as well as directly in the module.
 
-I did not use numpy, so I did do any ndarray declarations or efficient indexing.
+I did not use numpy, so I did not do any ndarray declarations or efficient indexing.
 
 Runtime: 8.76 sec
 Runtime before cython: 38.42 sec
