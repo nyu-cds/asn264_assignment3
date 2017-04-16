@@ -9,7 +9,7 @@ Process 0 reads a value (val) from the user and verifies that it is an integer l
 Process 0 sends the value to Process 1 which multiplies it by its rank (which is 1).
 Process 1 sends the value to Process 2 which multiplies it by its rank (which is 2).
 Etc...
-The last process sends the value back to process 0, which prints the result
+The last process sends the value back to process 0, which prints the result.
 
 Run this program with Python3 and using the command:
 mpiexec -n X python mpi_assignment_2.python
@@ -32,9 +32,6 @@ if rank == 0:
 				break
 		except ValueError:
 			pass
-
-	#Announce user-provided val
-	print ('\nProcess ' + str(rank) + ' read user val ' + str(val))
 	
 	#Send to "next" process. If size=1, then val will be sent back to 0.
 	comm.send(val, dest=(rank+1)%size)
@@ -42,16 +39,12 @@ if rank == 0:
 	#Receive val from the "last" process with rank size-1.
 	final_val = comm.recv(source=size-1)
 
-	print ('Process ' + str(rank) + ' received val ' + str(final_val) + ' from Process ' + str(size-1))
-	print ('\nFinal value is ' + str(final_val))
+	print ('\nFinal value is ' + str(final_val)+'\n')
 
 else:
 	
 	#Receive new val from previous process
 	val = comm.recv(source=rank-1)
-
-	#Announce received val
-	print ('Process ' + str(rank) + ' received val ' + str(val) + ' from Process ' + str(rank-1))
 
 	#Multiply val by rank number
 	val *= rank
