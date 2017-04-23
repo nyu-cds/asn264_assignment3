@@ -53,52 +53,57 @@ def is_sorted(nums):
 	return np.all(nums[:-1] <= nums[1:])
 
 
-#Define MPI communicator
-comm = MPI.COMM_WORLD
+def main():
 
-#Get rank of current process
-rank = comm.Get_rank()
+	#Define MPI communicator
+	comm = MPI.COMM_WORLD
 
-#Get number of processes
-num_processes = comm.Get_size()
+	#Get rank of current process
+	rank = comm.Get_rank()
 
-num_vals = 10**4
-max_val = 10**4
+	#Get number of processes
+	num_processes = comm.Get_size()
 
-if rank == 0:
+	num_vals = 10**4
+	max_val = 10**4
 
-	#Generate a large un-sorted array of size num_vals, integer values uniformly drawn from [0,max_vals)
-	nums = np.random.randint(0,max_val,num_vals)
+	if rank == 0:
 
-	#Print nums before sort
-	print ('Nums before sort: ', nums)
+		#Generate a large un-sorted array of size num_vals, integer values uniformly drawn from [0,max_vals)
+		nums = np.random.randint(0,max_val,num_vals)
 
-	#Partition the nums for broadcasting - see function for details
-	bins = partition_nums(nums,max_val,num_processes)
+		#Print nums before sort
+		print ('Nums before sort: ', nums)
 
-else:
+		#Partition the nums for broadcasting - see function for details
+		bins = partition_nums(nums,max_val,num_processes)
 
-	#Placeholder
-	bins = None
+	else:
 
-#Scatter operation to send appropriate bin to appropriate processer
-bin = comm.scatter(bins,root=0)
+		#Placeholder
+		bins = None
 
-#Sort bin 
-bin = np.sort(bin)
+	#Scatter operation to send appropriate bin to appropriate processer
+	bin = comm.scatter(bins,root=0)
 
-#Gather operation sends sorted bins to root
-nums = comm.gather(bin,root=0)
+	#Sort bin 
+	bin = np.sort(bin)
 
-#Root process appends sorted bins to get original nums in sorted order
-if rank == 0:
+	#Gather operation sends sorted bins to root
+	nums = comm.gather(bin,root=0)
 
-	nums = np.hstack(nums)
+	#Root process appends sorted bins to get original nums in sorted order
+	if rank == 0:
 
-	#Test that nums is sorted and that it has not lost any values 
-	assert is_sorted(nums)&(len(nums)==num_vals)
+		nums = np.hstack(nums)
 
-	print ('Passed sorting test...')
-	print ('Nums after sort: ', nums)
+		#Test that nums is sorted and that it has not lost any values 
+		assert is_sorted(nums)&(len(nums)==num_vals)
 
+		print ('Passed sorting test...')
+		print ('Nums after sort: ', nums)
+
+
+if __name__ == '__main__':
+	main()
 
