@@ -1,6 +1,11 @@
 # 
 # A CUDA version to calculate the Mandelbrot set
 #
+# Aditi Nair
+# Assignment 12
+# April 30 2017
+# 
+
 from numba import cuda
 import numpy as np
 from pylab import imshow, show
@@ -26,22 +31,30 @@ def mandel(x, y, max_iters):
 def compute_mandel(min_x, max_x, min_y, max_y, image, iters):
     
     '''
-    The original mandelbrot function iterated directly over every (x,y) pair in the matrix image. 
-
     In the CUDA implementation, compute_mandel is a kernel which executes the parallelizable portion of the fractal computation.
-    The kernel is executed in parallel (simultaneously) by threads, which are "contained" in grids, containing blocks, 
-    which in turn contain threads, on a GPU device. In this version, of mandelbrot computation, each thread is responsible
-    for computing certain pixels of the image.
+    The kernel is executed in parallel (simultaneously) by threads, which are "located" within a hierarchy of grids and blocks.
+    In this version of mandelbrot computation, each thread is responsible for computing certain pixels of the image.
 
-    starting_x and starting_y describe the thread indices of the current thread. 
-    Then since image width = 1024, block_width = 32 and grid_width = 32, each thread will be responsible for iterating over
-    at most 1024/(32*32)=1 values of real. 
-    Since image height = 1536, block_height = 8 and grid_height = 16, each thread will be responsible for iterating over at most 
-    1536/(8*16)=12 values of imag. 
-    Then each thread will be responsible for at most 12 pixels in the image. By formatting the loops as below, we guarantee 
-    that the execution of each thread is independent because each pixel is only computed exactly once over all threads.
+    Since griddim is (32,16) we know the grid is split into 32x16 blocks for a total of 512 blocks.
+    Since blockdim is (32,8) we know each block contains 32x8 threads for a total of 256 threads per block. 
+    Finally, there are 512*256 = 131072 threads, which must be responsible for computing 1024*1536=1572864 pixels.
 
-    Reference: https://devblogs.nvidia.com/parallelforall/numbapro-high-performance-python-cuda-acceleration/
+    starting_x and starting_y describes the absolute position of the current thread in the grid.
+    By the grid arrangement of the threads, we know that starting_x is in the range [0,1024) (since 32x32=1024).
+    Likewise, we know that starting_y is in the range [0,128) (since 16*8=128).
+    Then, in the image matrix, there are 1536 elements in each row. 
+    So we can design each thread to compute up to ceiling(1536/1024) = 2 values along the rows of the image. 
+    In the image matrix, there are 1024 elements in each column. 
+    So we can design each thread can compute up to ceiling(1024/128) = 8 values along the columns of the image. 
+    Then each pixel will be computed exactly once by some thread.
+
+    This can be done by iterating through values of x in range(starting_x, 1536, 1024)
+    and by iterating through values of y in range(starting_y, 1024, 128) and computing
+    the pixel value at image[y,x] using the mandel function, which is exactly what happens below.
+
+    References: 
+    https://devblogs.nvidia.com/parallelforall/numbapro-high-performance-python-cuda-acceleration/
+    https://cs.calvin.edu/courses/cs/374/CUDA/CUDA-Thread-Indexing-Cheatsheet.pdf
     '''
 
     #Set variables for image shape
@@ -52,15 +65,16 @@ def compute_mandel(min_x, max_x, min_y, max_y, image, iters):
     pixel_size_x = (max_x - min_x) / width
     pixel_size_y = (max_y - min_y) / height
 
-    #get starting x and y
+    #Get starting x and y
     starting_x, starting_y = cuda.grid(2)
 
-    #values for calculating ending x and y
+    #Get grid and block dimensions
     block_width = cuda.blockDim.x
     block_height = cuda.blockDim.y
     grid_width = cuda.gridDim.x
     grid_height = cuda.gridDim.y
 
+    #Loop through pixels to compute mandel for, as described above
     for x in range(starting_x, width, grid_width*block_width):
         real = min_x + x * pixel_size_x
         for y in range(starting_y, height, grid_height*block_height):
